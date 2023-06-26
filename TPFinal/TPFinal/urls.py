@@ -25,9 +25,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('', include('canchas.urls')),
+    path('admin/', admin.site.urls),
 ]
 
-if settings.DEBUG:
-    urlpatterns +=static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+#if settings.DEBUG: SI ESTA EN DEBUG FALSE Y CON ESTE IF, NO RECUPERA LAS IMAGENES
+urlpatterns +=static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+admin.site.site_title = 'Encontra tu cancha'
+admin.site.site_header = 'Panel de Administración de Encontra tu cancha'

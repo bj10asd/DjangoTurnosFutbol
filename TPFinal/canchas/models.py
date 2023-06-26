@@ -11,7 +11,7 @@ class Cancha(models.Model):
     direccion = models.CharField(db_column='Direccion',max_length=250,null=True,blank=True)
 
     class Meta:
-        db_table = 'Cancha'
+        db_table = 'cancha'
         ordering = ['nombre']
         verbose_name = 'Cancha'
         verbose_name_plural = 'Canchas'
@@ -28,7 +28,7 @@ class Turnos(models.Model):
     fecha_fin = models.DateTimeField(db_column='Fecha_Fin',null=False,blank=False)
 
     class Meta:
-        db_table = 'Turnos'
+        db_table = 'turnos'
         ordering = ['id','cancha_id']
         verbose_name = 'Turno'
         verbose_name_plural = 'Turnos'
@@ -41,7 +41,7 @@ class Roles(models.Model):
     descripcion = models.CharField(db_column='Descripcion',max_length=40)
 
     class Meta:
-        db_table = 'Roles'
+        db_table = 'roles'
         ordering = ['descripcion']
         verbose_name = 'Rol'
         verbose_name_plural = 'Roles'
@@ -55,7 +55,7 @@ class Roles_Users(models.Model):
     rol_id  = models.ForeignKey(Roles,models.PROTECT,db_column='rol_id',verbose_name='Rol')
 
     class Meta:
-        db_table = 'Roles_Users'
+        db_table = 'roles_users'
         ordering = ['user_id']
         verbose_name = 'Rol usuario'
         verbose_name_plural = 'Roles de usuarios'
