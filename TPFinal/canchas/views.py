@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import path
-from canchas.models import Cancha
+from canchas.models import Cancha,Roles_Users,Roles
 from django.contrib.auth import login,logout,authenticate
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -36,7 +36,40 @@ def deslogearse(request):
 
 def registrarse(request):
     #pass
+    if request.user.is_authenticated:
+        return redirect('index')
+    if request.method == 'POST':
+        e = request.POST.get('email')
+        rdo = User.objects.filter(email=e).count()
+        if rdo > 0:
+            messages.error(request, 'El email proporcionado ya está en uso')
+            return redirect('registro')
+        else:
+            u = request.POST.get('username')
+            p = request.POST.get('password')
+            user = User.objects.create_user(u,e,p)
+            if user:
+                if request.POST.get('switch') == 'on':
+                    #print("QUIERE SER CANCHERO")
+                    DarRol(user,'Canchero')
+                else:
+                    #print('QUIERE JUGAR A LA PELOTA')
+                    DarRol(user,"Jugador")
+                user.first_name = request.POST.get('nombre')
+                user.last_name  = request.POST.get('apellido') or ''
+                user.save() 
+                login(request,user)
+                messages.success(request, 'Registro completo, bienvenido {}'.format(user.first_name)+' '+format(user.last_name))
+                return redirect('index')
+            else:
+                print('nose pudo')
     return render(request,'registro.html',{})
+
+def DarRol(user,rol):
+    nuevo_ru = Roles_Users()
+    nuevo_ru.user_id = user
+    nuevo_ru.rol_id  = Roles.objects.get(descripcion=rol)
+    nuevo_ru.save()
 
 def canchas(request):
     """cancha = Cancha.objects.all()
@@ -68,7 +101,7 @@ class POIsMapView(TemplateView):
         for poi in pois:
             json_dict = {}
             json_dict['type']       = 'Feature'
-            json_dict['properties'] = dict(name=poi.nombre)
+            json_dict['properties'] = dict(name=poi.user_id.first_name)#poi.nombre
             json_dict['geometry']   = dict(type='Point',coordinates = list([poi.lat,poi.lng]))
             lista.append(json_dict)
         

@@ -40,11 +40,39 @@ header{
     </div>
 </header>
 
-<div class="container" style="margin-bottom: 1em">
-    <div class="row">
-        <div class="col-md-12 p-3">
-        <h1 style="margin-top: 1em; ">Nuestras canchas</h1>
+<div class="col-md-12 p-3" >
+  <div class="row">
+    <div class="col">
+      <h1 style="margin-top: 1em; padding: 0 0 0 0; margin: 0 0 0 0;">Nuestras canchas</h1>
+    </div>
+    <div class="col-md-2 offset-md-6" style="padding:  0 0 0 0; margin: 0 0 0 0">
+      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" style="background-color: white; color: black;">
+          🔍︎ Filtros
+      </button>
+      <div class="collapse" id="collapseExample">
+        <div class="card card-body">
+          <form >
+              <div class="row">
+                  <div class="col" ><!-- COLUMNA 1 -->
+                      <div class="input-group ">
+                          <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 col-10">
+                              <label for="q"> Buscar: </label>
+                              <input type="text" name="q" value="{{ query }}" class="form-control rounded" placeholder="Ingrese Nombre, Email, Domicilio o Numero de cliente a buscar" aria-label="Search" aria-describedby="search-addon" />
+                          </div>
+                      </div>
+                      <div class="col-md-2 offset-md-11" style="align-items: end; "><!--margin-top: 1em-->
+                        <button type="button submit" class="btn btn-outline-primary" >Filtrar</button>
+                    </div>
+                    </div>
+              </div> <!-- FIN CARD 1 -->
+            </form>
         </div>
+      </div>
+    </div>
+  </div>
+
+<div class="container" style="margin-bottom: 1em">
+  <div class="row">
         {% for e in canchas %}
           {% if forloop.counter0|divisibleby:2 %}
             <div class="card col-md-12 p-3">
@@ -54,7 +82,8 @@ header{
                 </div>
                 <div class="col-md-8"><!--BODY CARD-->
                   <div class="card-block" style="margin-top: 1em">
-                    <h6 class="card-title">{{ e.nombre }}</h6>
+                    <h6 class="card-title">{{ e.user_id.first_name}}</h6>
+                    <p class="card-text text-justify">{{ e.nombre  }}</p>
                     <p class="card-text text-justify">{{ e.direccion }}</p>
                     
                     <img src="{% static 'img/location.svg' %}" alt="location" height="18" width="18">
@@ -69,9 +98,10 @@ header{
           {% else %}
             <div class="card col-md-12 p-3">
               <div class="row ">
-                  <div class="col-md-8">
+                  <div class="col-md-8"><!--BODY CARD-->
                     <div class="card-block" style="margin-top: 1em">
-                      <h6 class="card-title">{{ e.nombre }}</h6>
+                      <h6 class="card-title">{{ e.user_id.first_name}}</h6>
+                      <p class="card-text text-justify">{{ e.nombre  }}</p>
                       <p class="card-text text-justify">{{ e.direccion }}</p>
                       
                       <img src="{% static 'img/location.svg' %}" alt="location" height="18" width="18">
