@@ -6,7 +6,7 @@ from canchas.models import Cancha,Turnos,Roles,Roles_Users
 #PW   Josemaria10
 
 class CanchaAdmin(admin.ModelAdmin):
-    list_display    = ['id','user_id','nombre','foto','direccion']
+    list_display    = ['id','user_id','nombre','foto','direccion','lat','lng']
     readonly_fields = ['id']
     search_fields   = ['nombre']
     actions = None

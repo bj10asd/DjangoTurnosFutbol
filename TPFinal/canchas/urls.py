@@ -6,7 +6,9 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.deslogearse , name='logout'),
+    path('register/', views.registrarse , name='registro'),
 
     #Cancha
     path('canchas/', views.CanchasListView.as_view() , name='canchas'),
+    path('canchas/map', views.POIsMapView.as_view() , name='mapa'),
 ]

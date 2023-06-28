@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+
+<h1 style="margin-top: 5em"> Ésta es nuestra ubicación </h1>
+{{ markers|json_script:"markers-data" }}
+<div id="map" width="100%" style='height:500px'></div>
+<script src="{% static 'js/map.js' %}"></script>
+
+{% endblock %}

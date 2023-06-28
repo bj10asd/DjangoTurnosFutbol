@@ -9,6 +9,8 @@ class Cancha(models.Model):
     nombre    = models.CharField(db_column='Nombre',max_length=50,null=False)
     foto      = models.ImageField(upload_to='upload/', null=True)#(db_column='Foto',max_length=250)
     direccion = models.CharField(db_column='Direccion',max_length=250,null=True,blank=True)
+    lat       = models.FloatField(db_column='lat',blank=True,null=True)
+    lng       = models.FloatField(db_column='lng',blank=True,null=True)
 
     class Meta:
         db_table = 'cancha'
