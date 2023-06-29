@@ -20,7 +20,7 @@ class Cancha(models.Model):
     
     def __str__(self) -> str:
         # super().__str__()
-        return self.nombre
+        return self.user_id.first_name+' | '+ self.nombre
 
 class Turnos(models.Model):
     #Turno_ID GENERADO POR DJANGO

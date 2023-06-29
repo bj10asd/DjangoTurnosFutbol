@@ -11,4 +11,9 @@ urlpatterns = [
     #Cancha
     path('canchas/', views.CanchasListView.as_view() , name='canchas'),
     path('canchas/map', views.POIsMapView.as_view() , name='mapa'),
+
+    #HORARIOS DE CANCHAS 
+    path('canchas/horario', views.calendarioLV.as_view() , name='calendario'),
+
+    path('canchas/nuevo', views.nuevoh , name='mapa'),
 ]

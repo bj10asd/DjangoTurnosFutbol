@@ -1,0 +1,249 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container d-flex justify-content-center"  style="margin-top: 7em; " > 
+    <div class="col-lg-10">
+        <div id='calendar' ></div>
+        </div>
+    <!--{#{% for t in turnos %}
+        {{t.user_id}} <br>
+        {{ t.fecha_ini | date:"c" }} <br>
+        {{ t.fecha_fin | date:"Y-m-d h:i A" }} <br>
+    {% endfor %}
+    #}-->
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+<div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+    <!-- <img src="..." class="rounded me-2" alt="..."> -->
+    <strong class="me-auto">&#128076; Evento</strong>
+    <small>Ahora</small>
+    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+        Evento creado con exito.
+    </div>
+</div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+        Usuario de la reserva: <p id="titulo"></p>
+        Inicio de reserva: <p id="date"></p>
+        Fin de reserva: <p id="datef"></p>
+        </div>
+        <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <!--<button type="button" class="btn btn-primary">Save changes</button>-->
+        </div>
+    </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var calendarEl = document.getElementById('calendar');
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+          /*initialView: 'dayGridMonth',*/
+          expandRows: true,
+          /*height: '100%',*/
+          initialView: 'timeGridWeek',
+          headerToolbar: {
+              left: 'prev,next',
+              center: 'title',
+              right: '',
+            },
+          editable: true,
+          selectable: true,
+          slotDuration: '01:00' ,
+          slotMinTime:  '08:00',
+          allDaySlot:   false,
+          
+          dateClick: function(info) {
+              //alert('clicked ' + info.dateStr);
+              /*var fi = info.startStr;
+              fi = fi.split("-")[2];
+              alert(fi);*/
+              agregarEventoS(info.dateStr);
+              //info=null;
+          },
+          select: function(info) {
+              //alert('selected ' + info.startStr + ' to ' + info.endStr);
+              var fi = info.startStr;fi = fi.split("-")[2];
+              var fh = info.endStr; fh = fh.split("-")[2];
+              //alert(Number(fi)+1!=Number(fh));
+              if(Number(fi)+1!=Number(fh)){
+                  //alert(fi);
+                  agregarEventoM(info.startStr,info.endStr);
+              }
+          },
+          eventClick: function(info) {
+              //alert('Event: ' + info.event.title);
+              //alert('Coordinates: ' + info.jsEvent.pageX + ',' + info.jsEvent.pageY);
+              //alert('View: ' + info.view.type);
+              //alert('dia: ' + info.event.startStr )
+              mostrarModalInfo(info);
+              // change the border color just for fun
+              info.el.style.borderColor = 'red';
+          },/*
+          events: [
+              { // this object will be "parsed" into an Event Object
+              title: 'The Title', // a property!
+              start: '2023-05-01', // a property!
+              end: '2023-05-05', // a property! ** see important note below about 'end' **
+              
+              },
+              {
+              title: 'Go to google',
+              start: '2023-05-05',
+              url: 'http://google.com/'
+              }
+              // other events here
+          ],*/
+          events:[
+                {% for t in turnos %}
+                    {
+                        title: '{{ t.user_id }}', // a property!
+                        start: '{{ t.fecha_ini | date:"c"  }}', // a property
+                        end:   '{{ t.fecha_fin | date:"c" }}'
+                    },
+                {% endfor %}
+          ]
+      });
+      
+      calendar.render();
+      calendar.setOption('locale', 'es');
+      
+      
+      function agregarEventoS(fecha){
+          //alert("envento single")
+          //var dateStr = prompt('Enter a date in YYYY-MM-DD format');
+          var date = new Date(fecha + 'T00:00:00'); // will be in local time
+          if (!isNaN(date.valueOf())) { // valid?
+              //var rta = prompt(' titulo del evento');
+              //mostrarModal("Agregar titulo de evento de un día.");
+              terminar1(date)
+              /*calendar.addEvent({
+                  //title: 'dynamic event',
+                  title: rta,
+                  start: date,
+                  allDay: true
+              });*/
+              //alert('Great. Now, update your database...');
+              //mostrarT();
+
+          } else {
+          alert('Invalid date.');
+          }
+          //alert(calendar.getEvents().length) se agregan dinamicamente los 
+      };
+      function agregarEventoM(ini,fin){
+          //alert("evento M");
+          //var dateStr = prompt('Enter a date in YYYY-MM-DD format');
+          var date1 = new Date(ini + 'T00:00:00'); // will be in local time
+          var date2 = new Date(fin + 'T00:00:00'); // will be in local time
+          //mostrarModal("Escribir titulo del evento de días multiples");
+          if (!isNaN(date1.valueOf())&&!isNaN(date2.valueOf())) { // valid?
+              terminar2(date1,date2)
+              //var rta = prompt(' titulo del evento');
+              /*calendar.addEvent({
+                  //title: 'dynamic event',
+                  title: rta,
+                  start: date1,
+                  end:   date2,
+                  allDay: true
+              });*/
+              //alert('Great. Now, update your database...');
+              //mostrarT();
+          } else {
+              alert('Invalid date.');
+          }
+      };
+      //alert(calendar.getEvents().length)
+      function mostrarT(){
+          const toastLiveExample = document.getElementById('liveToast')
+          const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample);
+          toastBootstrap.show();
+      };
+      function mostrarModal(titulo){
+          var tit = document.getElementById('exampleModalLabel');
+          tit.innerHTML = titulo;
+          var myModalEl = document.querySelector('#exampleModal')
+          var modal = bootstrap.Modal.getOrCreateInstance(myModalEl) // Returns a Bootstrap modal instance
+          modal.show();
+      };
+      function terminar1(date){
+          //DANDOLE OTRA FUNCION A LOS BOTONES
+          //const myModalEl = document.getElementById('exampleModal');
+          //myModalEl.addEventListener('hidden.bs.modal', event => {
+          //    var rta = document.getElementById("tituloEvento").value;
+          var rta = prompt("titulo del evento");
+              if(rta){
+                  //document.getElementById("tituloEvento").value;
+                  //alert(rta); 
+                  calendar.addEvent({
+                  //title: 'dynamic event',
+                      title: rta,
+                      start: date,
+                      allDay: true
+                  });
+                  //document.getElementById("tituloEvento").value = '';
+                  //var input = document.getElementById("tituloEvento");
+                  //input.value = "";
+                  mostrarT();
+                  date = null;
+              }
+              else alert("no escribio nada");
+          //})
+      };
+      function terminar2(date1,date2){
+          //DANDOLE OTRA FUNCION A LOS BOTONES
+          //const myModalEl = document.getElementById('exampleModal');
+          //myModalEl.addEventListener('hidden.bs.modal', event => {
+          //    var rta = document.getElementById("tituloEvento").value;
+          var rta = prompt("titulo del evento");
+              if(rta){
+                  //document.getElementById("tituloEvento").value;
+                  //alert(rta); 
+                  calendar.addEvent({
+                  //title: 'dynamic event',
+                      title: rta,
+                      start: date1,
+                      end:   date2,
+                      allDay: true
+                  });
+                  //document.getElementById("tituloEvento").value = "";
+                  //$('#tituloEvento').val('');
+                  mostrarT();
+                  date1 = null;
+                  date2 = null;
+              }
+              else alert("no escribio nada");
+          //})
+      };
+      function mostrarModalInfo(info){
+          var myModalEl = document.querySelector('#exampleModal')
+          var modal = bootstrap.Modal.getOrCreateInstance(myModalEl) // Returns a Bootstrap modal instance
+          //alert('Event: ' + info.event.title);
+          modal.show();
+          
+              //alert('Coordinates: ' + info.jsEvent.pageX + ',' + info.jsEvent.pageY);
+              //alert('View: ' + info.view.type);
+              //alert('dia: ' + info.event.startStr )
+          document.getElementById('titulo').innerHTML = info.event.title;
+          document.getElementById('date').innerHTML = info.event.startStr;
+          document.getElementById('datef').innerHTML = info.event.endStr;
+      }
+    });
+    
+  </script>
+
+{% endblock %}

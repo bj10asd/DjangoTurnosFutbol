@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import path
-from canchas.models import Cancha,Roles_Users,Roles
+from canchas.models import Cancha,Roles_Users,Roles,Turnos
 from django.contrib.auth import login,logout,authenticate
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -80,9 +80,25 @@ class CanchasListView(ListView):
     context_object_name = 'canchas'
     template_name       = 'canchas.html'
 
+    def get_queryset(self): 
+        rta = Cancha.objects.all()
+        filtro = self.get_ObtenerFiltro()
+        if filtro:
+            rta1 = rta.filter(user_id__in=User.objects.filter(first_name__icontains=filtro).values('id'))
+            rta2 = rta.filter(nombre__icontains=filtro)
+            rta  = rta1.union(rta2)
+            
+        return rta
+
+    def get_ObtenerFiltro(self):
+        return self.request.GET.get('q') or ''
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['query'] = self.get_ObtenerFiltro()
         return context
+
+    
 
 import json
 from django.core.serializers import serialize
@@ -107,3 +123,26 @@ class POIsMapView(TemplateView):
         
         context['markers'] = lista
         return context
+
+
+#def calendario(request):
+    """todosTurnos = Turnos.objects.all()
+    print(todosTurnos.values_list())
+    context = {
+        'turnos' : todosTurnos
+    }
+    return render(request,'horarios.html',context)"""
+
+class calendarioLV(ListView):
+#https://github.com/sajib1066/event-calendar/blob/main/calendarapp/urls.py
+
+    model               = Turnos
+    template_name       = 'horarios.html'
+    context_object_name = 'turnos'
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs)
+
+
+def nuevoh(request):
+    return render(request,'nuevoh.html',{})
