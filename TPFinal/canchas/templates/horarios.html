@@ -1,7 +1,16 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-
+{% block css %}
+<style>
+    input[type="number"]
+{
+    -webkit-appearance: textfield !important;
+    margin: 0;
+    -moz-appearance:textfield !important;
+}
+</style>
+{% endblock %}
 <div class="container d-flex justify-content-center"  style="margin-top: 7em; " > 
     <div class="col-lg-10">
         <div id='calendar' ></div>
@@ -12,6 +21,7 @@
         {{ t.fecha_fin | date:"Y-m-d h:i A" }} <br>
     {% endfor %}
     #}-->
+    
 </div>
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
@@ -32,19 +42,59 @@
     <div class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Reserva</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
         Usuario de la reserva: <p id="titulo"></p>
-        Inicio de reserva: <p id="date"></p>
-        Fin de reserva: <p id="datef"></p>
+        <!--Inicio de reserva: <p id="date"></p>-->
+        <!--Fin de reserva: <p id="datef"></p>-->
         </div>
         <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         <!--<button type="button" class="btn btn-primary">Save changes</button>-->
         </div>
     </div>
+    </div>
+</div>
+<!-- MODAL 2 ROBADO -->
+<div class="modal fade show" id="eventModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title text-white" id="exampleModalLongTitle">Reservando...</h5>
+                <button id="modalClose1" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{% url 'crear_turno' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="recipient-name" class="col-form-label">Usuario quien reserva:</label> <br>
+                        <p>{{ user.first_name }} {{user.last_name}}</p>
+                        <input type="number" name="user_id" id="user_id" value="{{ user.id }}" hidden>
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="col-form-label">En el predio:</label>
+                        <p> {{ cancha }}</p> 
+                        
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="col-form-label">Start Date:</label>
+                        <p id="fec_ini"></p>
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="col-form-label">End Date:</label>
+                        <p id="fec_fin"></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="modalClose2" type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Confirmar</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -58,6 +108,7 @@
           initialView: 'timeGridWeek',
           headerToolbar: {
               left: 'prev,next',
+              //left: 'next',
               center: 'title',
               right: '',
             },
@@ -66,24 +117,34 @@
           slotDuration: '01:00' ,
           slotMinTime:  '08:00',
           allDaySlot:   false,
-          
+          firstDay: numeroDia(),
+          footerToolbar: true,
           dateClick: function(info) {
+              let hoy = new Date();
+              hoy.setHours(hoy.getHours()-3);
+              hoy = hoy.toJSON();        
               //alert('clicked ' + info.dateStr);
+              if(info.dateStr<hoy)
+                alert("no puede alquilar en este horario")
+              else
+                mostrarModalRobado(info)
+                //alert("puede alquilar")
               /*var fi = info.startStr;
               fi = fi.split("-")[2];
               alert(fi);*/
-              agregarEventoS(info.dateStr);
+              
+                //agregarEventoS(info.dateStr);
               //info=null;
           },
           select: function(info) {
               //alert('selected ' + info.startStr + ' to ' + info.endStr);
-              var fi = info.startStr;fi = fi.split("-")[2];
-              var fh = info.endStr; fh = fh.split("-")[2];
+              /*var fi = info.startStr;fi = fi.split("-")[2];*/
+              /*var fh = info.endStr; fh = fh.split("-")[2];*/
               //alert(Number(fi)+1!=Number(fh));
-              if(Number(fi)+1!=Number(fh)){
+              /*if(Number(fi)+1!=Number(fh)){
                   //alert(fi);
                   agregarEventoM(info.startStr,info.endStr);
-              }
+              }*/
           },
           eventClick: function(info) {
               //alert('Event: ' + info.event.title);
@@ -93,21 +154,7 @@
               mostrarModalInfo(info);
               // change the border color just for fun
               info.el.style.borderColor = 'red';
-          },/*
-          events: [
-              { // this object will be "parsed" into an Event Object
-              title: 'The Title', // a property!
-              start: '2023-05-01', // a property!
-              end: '2023-05-05', // a property! ** see important note below about 'end' **
-              
-              },
-              {
-              title: 'Go to google',
-              start: '2023-05-05',
-              url: 'http://google.com/'
-              }
-              // other events here
-          ],*/
+          },
           events:[
                 {% for t in turnos %}
                     {
@@ -116,13 +163,24 @@
                         end:   '{{ t.fecha_fin | date:"c" }}'
                     },
                 {% endfor %}
-          ]
+          ],
       });
       
       calendar.render();
       calendar.setOption('locale', 'es');
       
-      
+      function numeroDia(){
+        //let hoy = new Date();
+        //hoy.setHours(hoy.getHours()-3);
+        //hoy.
+
+        //var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        var d = new Date();
+        //alert(d.getDay())
+        //var dayName = days[d.getDay()];
+        //alert(days.indexOf(d.getDay()))
+        return d.getDay();
+      }
       function agregarEventoS(fecha){
           //alert("envento single")
           //var dateStr = prompt('Enter a date in YYYY-MM-DD format');
@@ -178,6 +236,26 @@
           tit.innerHTML = titulo;
           var myModalEl = document.querySelector('#exampleModal')
           var modal = bootstrap.Modal.getOrCreateInstance(myModalEl) // Returns a Bootstrap modal instance
+          modal.show();
+      };
+      function mostrarModalRobado(info){
+          //var tit = document.getElementById('eventModal');
+          //tit.innerHTML = titulo;
+          var myModalEl = document.querySelector('#eventModal')
+          var modal = bootstrap.Modal.getOrCreateInstance(myModalEl) // Returns a Bootstrap modal instance
+          //var cancha = document.getElementById('cancha');
+          //cancha.innerHTML = '{{ cancha }}'
+          var fec_i = document.getElementById('fec_ini');
+          fec_i.innerHTML = info.dateStr;
+          /*var fec_f = document.getElementById('fec_fin');
+          let str = ""+info.dateStr;
+          let nuevo = str.split('T')[1]
+          let n = nuevo.split(':')[1]
+          fec_f.innerHTML = nuevo;*/
+          var fec_fin = new Date(info.dateStr);
+          fec_fin.setMinutes(fec_fin.getMinutes()+59)
+          var fec_f = document.getElementById('fec_fin');
+          fec_f.innerHTML = fec_fin
           modal.show();
       };
       function terminar1(date){
@@ -239,11 +317,50 @@
               //alert('View: ' + info.view.type);
               //alert('dia: ' + info.event.startStr )
           document.getElementById('titulo').innerHTML = info.event.title;
-          document.getElementById('date').innerHTML = info.event.startStr;
-          document.getElementById('datef').innerHTML = info.event.endStr;
+          //document.getElementById('date').innerHTML = info.event.startStr;
+          //document.getElementById('datef').innerHTML = info.event.endStr;
       }
     });
     
   </script>
 
 {% endblock %}
+
+<!-- MODAL 2 ROBADO -->
+<div class="modal fade show" id="eventModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title text-white" id="exampleModalLongTitle">Add New Event</h5>
+                <button id="modalClose1" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="recipient-name" class="col-form-label">Event Title:</label>
+                        {{ form.user_id }} 
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="col-form-label">Description:</label>
+                        {{ form.cancha_id }}
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="col-form-label">Start Date:</label>
+                        {{ form.fecha_ini }}
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="col-form-label">End Date:</label>
+                        {{ form.fecha_fin }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="modalClose2" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

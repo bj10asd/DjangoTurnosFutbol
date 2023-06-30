@@ -13,7 +13,11 @@ urlpatterns = [
     path('canchas/map', views.POIsMapView.as_view() , name='mapa'),
 
     #HORARIOS DE CANCHAS 
-    path('canchas/horario', views.calendarioLV.as_view() , name='calendario'),
+    path('canchas/horario/<int:pk>', views.calendarioLV.as_view() , name='calendario'),
 
-    path('canchas/nuevo', views.nuevoh , name='mapa'),
+    #Turnos
+    #ath('canchas/horario/new', views.create_event , name='crear_turno'),
+    path('canchas/horario/new', views.create_turno , name='crear_turno'),
+
+    #path('canchas/nuevo', views.nuevoh , name='mapa'),
 ]

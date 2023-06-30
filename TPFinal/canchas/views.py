@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
+from canchas.forms import TurnosForm
 
 def index(request):
     #cancha = Cancha.objects.all()
@@ -140,9 +141,45 @@ class calendarioLV(ListView):
     template_name       = 'horarios.html'
     context_object_name = 'turnos'
 
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(**kwargs)
+    def get_queryset(self):
+        #return super().get_queryset() self.kwargs['studentId']
+        #print(self.kwargs['pk'])
+        return Turnos.objects.filter(id = self.kwargs['pk'])
 
+    def get_context_data(self, **kwargs):
+        #print(self.get_queryset()) cancha.user_id.first_name
+        var =Cancha.objects.get(id = self.kwargs['pk'])
+        context = super().get_context_data(**kwargs)
+        print(var.user_id.first_name)
+        context['cancha'] = var.user_id.first_name
+        return context
+
+"""def create_event(request):
+    form = TurnosForm(request.POST or None)
+    if request.POST and form.is_valid():
+        title = form.cleaned_data["title"]
+        description = form.cleaned_data["description"]
+        start_time = form.cleaned_data["start_time"]
+        end_time = form.cleaned_data["end_time"]
+        Event.objects.get_or_create(
+            user=request.user,
+            title=title,
+            description=description,
+            start_time=start_time,
+            end_time=end_time,
+        )
+        user_id = form.cleaned_data["user_id"]
+        cancha_id = form.cleaned_data["cancha_id"]
+        fecha_ini = form.cleaned_data["fecha_ini"]
+        fecha_fin = form.cleaned_data["fecha_fin"]
+        Turnos.objects.create(user_id,cancha_id,fecha_ini,fecha_fin)
+        #return HttpResponseRedirect(reverse("calendarapp:calendar"))
+        messages.success(request, 'Se reservó su cancha')
+        return redirect('index')
+    return render(request, "horarios.html", {"form": form})"""
+
+def create_turno(request):
+    pass
 
 def nuevoh(request):
     return render(request,'nuevoh.html',{})

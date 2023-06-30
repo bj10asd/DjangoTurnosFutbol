@@ -14,7 +14,7 @@ class CanchaAdmin(admin.ModelAdmin):
 admin.site.register(Cancha,CanchaAdmin)
 
 class TurnosAdmin(admin.ModelAdmin):
-    list_display = ['id','user_id','fecha_ini','fecha_fin']
+    list_display = ['id','user_id','cancha_id','fecha_ini','fecha_fin']
     readonly_fields = ['id']
     search_fields = ['user_id']
     actions = None
