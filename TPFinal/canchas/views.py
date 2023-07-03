@@ -49,6 +49,7 @@ def registrarse(request):
             u = request.POST.get('username')
             p = request.POST.get('password')
             user = User.objects.create_user(u,e,p)
+            
             if user:
                 if request.POST.get('switch') == 'on':
                     #print("QUIERE SER CANCHERO")
@@ -112,7 +113,9 @@ class POIsMapView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        pois = Cancha.objects.all()
+        #pois = Cancha.objects.all()
+        pois = Cancha.objects.filter(id=self.kwargs['pk'])
+        context['cancha'] = pois[0]
         lista = []
 
         for poi in pois:
@@ -134,24 +137,60 @@ class POIsMapView(TemplateView):
     }
     return render(request,'horarios.html',context)"""
 
+from io import BytesIO
+from django.http import HttpResponse
+from django.template.loader import get_template
+from django.views import View
+from xhtml2pdf import pisa
+from django.core import serializers
+def render_to_pdf(template_src,context_dict={}):
+    template = get_template(template_src)
+    html = template.render(context_dict)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode()), result)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return None
+
+class ViewPDF(View):
+    def get(self,request,*args,**kwargs):
+        #data = User.objects.get(id=request.user.id)
+        #data = Turnos.objects.latest(user_id = request.user.id)
+        d = Turnos.objects.filter(user_id = request.user.id).order_by("-id")[0]
+        #data = serializers.serialize('json', data)
+        data = {
+            "cancha_id":d.cancha_id,
+            "user_id":d.user_id,
+            "fecha_ini":d.fecha_ini
+
+        }
+        pdf = render_to_pdf('reserva.html', data)
+        return HttpResponse(pdf, content_type='application/pdf')
+
 class calendarioLV(ListView):
 #https://github.com/sajib1066/event-calendar/blob/main/calendarapp/urls.py
 
     model               = Turnos
     template_name       = 'horarios.html'
     context_object_name = 'turnos'
+    
 
     def get_queryset(self):
         #return super().get_queryset() self.kwargs['studentId']
         #print(self.kwargs['pk'])
-        return Turnos.objects.filter(id = self.kwargs['pk'])
+        #print(self.request.POST.get('fec_i'))
+        #print("mostrando pk")
+        #print(self.kwargs['pk'])
+        return Turnos.objects.filter(cancha_id = self.kwargs['pk'])
 
     def get_context_data(self, **kwargs):
         #print(self.get_queryset()) cancha.user_id.first_name
+        #print(self.request.POST.get('fec_i'))
         var =Cancha.objects.get(id = self.kwargs['pk'])
         context = super().get_context_data(**kwargs)
-        print(var.user_id.first_name)
-        context['cancha'] = var.user_id.first_name
+        #print(var.user_id.first_name)
+        context['cancha'] = var.user_id#.first_name
+        context['c'] = Turnos.objects.filter(cancha_id = var.id).count()
         return context
 
 """def create_event(request):
@@ -178,8 +217,50 @@ class calendarioLV(ListView):
         return redirect('index')
     return render(request, "horarios.html", {"form": form})"""
 
-def create_turno(request):
-    pass
+def create_turno(request,pk):
+    #messages.success(request, "Usuario o contraseña invalidos")
+    #print(request.POST.get('pk'))
+    #print("imprimiendo pk")
+    #print(pk)
+    id_cancha = Cancha.objects.get(user_id=pk).id #
+    #print("id_cancha")
+    #print(id_cancha)
+
+   #turnos = Turnos.objects.filter(id = id_cancha)
+    #print("mostrando fecha")
+    #print(request.POST.get('fec_i'))
+    #print(request.POST.get('fec_f'))
+    var = Cancha.objects.get(id = id_cancha)
+    #print("var")
+    #print(var)
+    fecha_i = request.POST.get('fec_i')
+    fecha_f = request.POST.get('fec_f')
+    #print(request.user.id)
+    GrabarTurno(request,var,fecha_i,fecha_f,request.user.id)
+    #print("user id")
+    #print(request.user.id)
+    cancha = var.user_id#.first_name
+    turnos = Turnos.objects.filter(cancha_id = id_cancha)
+    contador = turnos.count()
+    #print(contador)
+    #return redirect('calendario',args=(id_cancha)) #args=(pk, id_cancha)) de esta forma devuele 2 cosas, nosotros queremos devolver 1
+    return render(request,'horarios.html',{'pk':id_cancha,'cancha': cancha,'turnos':turnos,'c':contador})
+
+def GrabarTurno(r,cancha,fecha_i,fecha_f,u):
+    nuevo_turno = Turnos()
+    nuevo_turno.user_id = User.objects.get(id=u)
+    nuevo_turno.cancha_id = cancha
+    nuevo_turno.fecha_ini = fecha_i
+    nuevo_turno.fecha_fin = fecha_f
+    nuevo_turno.save()
+    if nuevo_turno:
+        messages.success(r,' Se reservó su cancha correctamente ')
+    else:
+        messages.error(r,'Hubo un problema, no pudimos generar la reserva')
+    
+
+
+
 
 def nuevoh(request):
-    return render(request,'nuevoh.html',{})
+    return render(request,'reserva.html',{})

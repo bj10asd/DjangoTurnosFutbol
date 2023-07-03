@@ -83,7 +83,7 @@ header{
                     <p class="card-text text-justify">{{ e.direccion }}</p>
                     
                     <img src="{% static 'img/location.svg' %}" alt="location" height="18" width="18">
-                    <a href="{% url 'mapa' %}"> Conocé donde estamos</a>
+                    <a href="{% url 'mapa' pk=e.id %}"> Conocé donde estamos</a>
                   </div>
                   <div style="position: absolute; bottom: 15px;">
                       <a href="{% url 'calendario' pk=e.id %}" class="btn btn-primary"> Conoce más de esta cancha</a>
@@ -101,7 +101,7 @@ header{
                       <p class="card-text text-justify">{{ e.direccion }}</p>
                       
                       <img src="{% static 'img/location.svg' %}" alt="location" height="18" width="18">
-                      <a href="{% url 'mapa' %}"> Conocé donde estamos</a>
+                      <a href="{% url 'mapa' pk=e.id  %}"> Conocé donde estamos</a>
                       </div>
                   </div>
                   <div style="position: absolute; bottom: 15px;">

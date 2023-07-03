@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pdf - confirmacion</title>
+    
+    <link rel="stylesheet"href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" />
+    
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.js"></script>
+    
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css?family=Indie+Flower&display=swap" rel="stylesheet"> 
+ 
+    
+</head>
+<body>
+   
+   
+   
+<div class="container">
+
+{% load static %}    
+<div>
+    <picture >
+    <div class="p-2 bg-info" style="margin-top: 1em">
+        <img src="http://127.0.0.1:8000/static/img/cancha.jpg" alt="imagen" width="120" height="120" align="left" style="margin-top: 1em">
+        </div>
+    </picture>
+</div>  
+<div style="font-family: 'Indie Flower', cursive;">  
+ <br><br>            
+ <h1 align="center"> Confirmaci&oacute;n de reserva de {{ user_id }}</h1>
+</div>
+
+<br>
+
+<div >
+<br>
+   
+       <div class="flex-center position-ref full-height">
+        <p>Esta es su  confirmaci&oacute;n de reserva, deber&aacute; presentarlo en la cancha con el responsable a cargo. Recuerde estar 15 minutos antes.<br><br>
+            &#128076; Se tendr&aacute; que presentar el d&iacute;a
+            {{ fecha_ini }}
+            
+        <br>
+        
+        &#128076; En {{ cancha_id }}. <br>
+        
+        
+        
+        </p>
+        </div>
+        
+    </div>
+
+    <hr>
+           <br><br>     
+    
+        
+          
+    <div class="p-2 bg-info"></div>
+      
+</div>
+    
+</body>
